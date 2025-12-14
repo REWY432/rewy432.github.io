@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#4a86e8">
   <meta name="description" content="Система учёта передержки собак">
   
-  <title>🐕 Передержка собак 3.4</title>
+  <title>🐕 Передержка собак 3.5</title>
   
   <!-- Apple Touch Icon -->
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234a86e8'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='60'%3E🐕%3C/text%3E%3C/svg%3E">
@@ -44,7 +44,48 @@
       color: var(--text);
       min-height: 100vh;
       padding-bottom: 80px; /* Space for FAB */
-      overscroll-behavior-y: none; /* Prevent pull-to-refresh effect if needed */
+      overscroll-behavior-y: contain; /* Better pull-to-refresh behavior */
+    }
+
+    /* Pull to Refresh Indicator */
+    #ptr-indicator {
+      position: fixed;
+      top: 60px; /* Below header */
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 95;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.2s;
+    }
+    
+    #ptr-indicator.visible {
+      opacity: 1;
+    }
+
+    .ptr-spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      display: none; /* Hidden by default */
+    }
+    
+    .ptr-spinner.spinning {
+      display: block;
+      animation: spin 1s linear infinite;
+    }
+    
+    .ptr-icon {
+      font-size: 24px;
+      color: var(--primary);
+      transition: transform 0.2s;
     }
 
     /* Header */
@@ -326,6 +367,64 @@
       color: var(--success);
       margin-left: auto;
     }
+
+    /* History Styles */
+    .history-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .history-stats-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .history-stat-box {
+      flex: 1;
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .history-stat-val {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .history-stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .history-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .history-item {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-date { font-weight: 500; font-size: 0.95rem; }
+    .history-meta { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+    .history-price { font-weight: 600; color: var(--success); }
 
     /* Forms */
     .form-group {
@@ -768,6 +867,12 @@
 </head>
 <body>
 
+  <!-- Pull to Refresh Indicator -->
+  <div id="ptr-indicator">
+    <div class="ptr-icon" id="ptr-icon">⬇️</div>
+    <div class="ptr-spinner" id="ptr-spinner"></div>
+  </div>
+
   <!-- Offline Bar -->
   <div class="offline-bar" id="offlineBar">📴 Нет подключения к интернету</div>
 
@@ -787,7 +892,7 @@
     <button class="nav-btn" data-section="settings">Настройки</button>
   </nav>
 
-  <div class="container">
+  <div class="container" id="mainContainer">
 
     <!-- Visits Section -->
     <section id="visits" class="section active">
@@ -1010,6 +1115,22 @@
     </div>
   </div>
 
+  <!-- History Modal -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">История</h3>
+        <button class="modal-close" onclick="closeModal('historyModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="historyContent">
+        <!-- Content JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="width:100%" onclick="closeModal('historyModal')">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Expense Modal -->
   <div class="modal-overlay" id="expenseModal">
     <div class="modal">
@@ -1082,7 +1203,7 @@
     // ==================== PWA ====================
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
-        const CACHE_NAME = 'dog-boarding-v3';
+        const CACHE_NAME = 'dog-boarding-v3.5';
         
         self.addEventListener('install', (event) => {
           self.skipWaiting();
@@ -1134,6 +1255,7 @@
       initPeriodTabs();
       initSearchSort();
       initAutocomplete();
+      initPullToRefresh(); // New Pull-to-Refresh
       setDefaultDates();
       renderCalendar();
       
@@ -1209,6 +1331,83 @@
         });
     }
 
+    // ==================== PULL TO REFRESH ====================
+    function initPullToRefresh() {
+        const container = document.body;
+        const indicator = document.getElementById('ptr-indicator');
+        const spinner = document.getElementById('ptr-spinner');
+        const icon = document.getElementById('ptr-icon');
+        
+        let startY = 0;
+        let currentY = 0;
+        let isPulling = false;
+        let isLoading = false;
+        const threshold = 120; // Trigger threshold
+
+        container.addEventListener('touchstart', (e) => {
+            // Only trigger if at top
+            if (window.scrollY === 0 && !isLoading) {
+                startY = e.touches[0].clientY;
+                isPulling = true;
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+            if (!isPulling) return;
+            
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            
+            // Only pull down
+            if (diff > 0) {
+                // Resistance
+                const translateY = Math.min(diff * 0.4, 80);
+                
+                indicator.style.transform = `translateY(${translateY - 20}px)`;
+                indicator.style.opacity = Math.min(diff / threshold, 1);
+                
+                if (diff > threshold) {
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+                
+                // Prevent default scrolling only if vertical pull dominant
+                if (e.cancelable && diff > 10) {
+                    e.preventDefault(); 
+                }
+            } else {
+                isPulling = false;
+            }
+        }, { passive: false });
+
+        container.addEventListener('touchend', async () => {
+            if (!isPulling) return;
+            isPulling = false;
+            
+            const diff = currentY - startY;
+            if (diff > threshold) {
+                // Trigger Refresh
+                isLoading = true;
+                icon.style.display = 'none';
+                spinner.classList.add('spinning');
+                indicator.style.transform = 'translateY(10px)'; // Hold position
+                
+                await loadData();
+                
+                // Reset
+                isLoading = false;
+                spinner.classList.remove('spinning');
+                icon.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+            }
+            
+            // Hide
+            indicator.style.opacity = 0;
+            indicator.style.transform = 'translateY(-20px)';
+        });
+    }
+
     function setDefaultDates() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('visitCheckIn').value = today;
@@ -1236,6 +1435,9 @@
     async function loadData() {
       try {
         const response = await fetch(`${apiUrl}?action=getData`);
+        
+        if (!response.ok) throw new Error('Network error');
+        
         const data = await response.json();
         
         visits = data.visits || [];
@@ -1318,14 +1520,9 @@
           body: JSON.stringify({ action, ...payload })
         });
         
-        // Check if response is OK
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error('HTTP Error');
         const json = await response.json();
         
-        // Check if backend returned logic error
         if (json && json.success === false) {
              console.error('Backend Error:', json);
              showToast('Ошибка на сервере: ' + (json.message || 'Unknown'));
@@ -1397,9 +1594,6 @@
 
         const isActive = selectedCalendarDate === dateStr ? 'active' : '';
 
-        // If Expanded, show count number instead of dot maybe? Or just same dot.
-        // Let's keep consistent.
-        
         html += `
           <div class="calendar-day ${isActive}" onclick="filterByDate('${dateStr}', this)">
             <span class="day-name">${dayName}</span>
@@ -1576,7 +1770,6 @@
           const endDate = new Date(v.checkOut);
           endDate.setHours(0, 0, 0, 0);
           
-          // Loop through each day of the visit
           while (loopDate <= endDate) {
               const m = loopDate.getMonth();
               const y = loopDate.getFullYear();
@@ -1587,7 +1780,6 @@
                   forecastNext += v.pricePerDay;
               }
               
-              // Add 1 day
               loopDate.setDate(loopDate.getDate() + 1);
           }
       });
@@ -1596,8 +1788,6 @@
       document.getElementById('statVisits').textContent = completed.length;
       document.getElementById('statDogs').textContent = uniqueDogs;
       document.getElementById('statAvg').textContent = formatMoney(avg);
-      
-      // Update Forecast Cards
       document.getElementById('statForecastCurrent').textContent = formatMoney(forecastCurrent);
       document.getElementById('statForecastNext').textContent = formatMoney(forecastNext);
 
@@ -1630,7 +1820,7 @@
         `).join('');
       }
       
-      renderChart(); // Also update chart
+      renderChart(); 
     }
 
     function updateHeader() {
@@ -1767,13 +1957,14 @@
 
       let footerHtml = '';
       
-      // Common Edit & Receipt Button
       const editBtn = `<button class="btn btn-secondary" style="margin-right:auto; padding:8px 12px;" onclick="openEditModal(${id})">✏️</button>`;
       const receiptBtn = `<button class="btn btn-secondary" style="margin-right:8px; padding:8px 12px;" onclick="openReceiptModal(${id})">📄 Чек</button>`;
+      const historyBtn = `<button class="btn btn-secondary" style="margin-right:8px; padding:8px 12px;" onclick="openHistoryModal('${visit.name}')">📜 История</button>`;
 
       if (visit.status === 'Забронировано') {
         footerHtml = `
           ${editBtn}
+          ${historyBtn}
           <button class="btn btn-secondary" onclick="closeModal('viewVisitModal')">Закрыть</button>
           <button class="btn btn-success" onclick="changeStatus(${id}, 'На передержке')">🐕 Заехал</button>
         `;
@@ -1788,12 +1979,65 @@
         footerHtml = `
             ${editBtn}
             ${receiptBtn}
+            ${historyBtn}
             <button class="btn btn-secondary" onclick="closeModal('viewVisitModal')">Закрыть</button>
         `;
       }
 
       document.getElementById('viewVisitFooter').innerHTML = footerHtml;
       openModal('viewVisitModal');
+    }
+
+    function openHistoryModal(dogName) {
+        const dogVisits = visits.filter(v => v.name === dogName);
+        
+        // Stats
+        const totalVisits = dogVisits.length;
+        const totalRevenue = dogVisits.reduce((acc, v) => acc + v.total, 0);
+        
+        // Sorting by date (newest first)
+        dogVisits.sort((a, b) => new Date(b.checkIn) - new Date(a.checkIn));
+
+        // Render List
+        const listHtml = dogVisits.map(v => `
+            <div class="history-item">
+                <div>
+                    <div class="history-date">${formatDate(v.checkIn)} — ${formatDate(v.checkOut)}</div>
+                    <div class="history-meta">${v.days} дн. · <span class="${getStatusClass(v.status)}">${v.status}</span></div>
+                </div>
+                <div class="history-price">${formatMoney(v.total)}</div>
+            </div>
+        `).join('');
+
+        const html = `
+            <div class="history-header">
+                <div class="history-avatar">${dogName.charAt(0)}</div>
+                <div>
+                    <div style="font-size: 1.2rem; font-weight: 700;">${dogName}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">${dogVisits[0]?.breed || ''}</div>
+                </div>
+            </div>
+            
+            <div class="history-stats-row">
+                <div class="history-stat-box">
+                    <div class="history-stat-val">${totalVisits}</div>
+                    <div class="history-stat-lbl">Визитов</div>
+                </div>
+                <div class="history-stat-box">
+                    <div class="history-stat-val" style="color: var(--success);">${formatMoney(totalRevenue).replace(' ₽', '')}</div>
+                    <div class="history-stat-lbl">Всего (₽)</div>
+                </div>
+            </div>
+
+            <div style="font-weight: 600; margin-bottom: 8px;">История визитов</div>
+            <div class="history-list">
+                ${listHtml}
+            </div>
+        `;
+
+        document.getElementById('historyContent').innerHTML = html;
+        closeModal('viewVisitModal'); // Optional: close view modal
+        openModal('historyModal');
     }
 
     function openReceiptModal(id) {
