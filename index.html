@@ -1317,10 +1317,25 @@
           method: 'POST',
           body: JSON.stringify({ action, ...payload })
         });
-        return await response.json();
+        
+        // Check if response is OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        
+        // Check if backend returned logic error
+        if (json && json.success === false) {
+             console.error('Backend Error:', json);
+             showToast('Ошибка на сервере: ' + (json.message || 'Unknown'));
+             return null;
+        }
+
+        return json;
       } catch (e) {
         console.error('API error:', e);
-        showToast('Ошибка соединения');
+        showToast('Ошибка соединения: ' + e.message);
         return null;
       }
     }
@@ -1552,23 +1567,30 @@
       const nextMonth = nextMonthDate.getMonth();
       const nextMonthYear = nextMonthDate.getFullYear();
 
-      // Forecast for Current Month (based on Check-In)
-      const forecastCurrent = visits
-        .filter(v => {
-            if (v.status !== 'Забронировано') return false;
-            const d = new Date(v.checkIn);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        })
-        .reduce((sum, v) => sum + v.total, 0);
+      let forecastCurrent = 0;
+      let forecastNext = 0;
 
-      // Forecast for Next Month (based on Check-In)
-      const forecastNext = visits
-        .filter(v => {
-            if (v.status !== 'Забронировано') return false;
-            const d = new Date(v.checkIn);
-            return d.getMonth() === nextMonth && d.getFullYear() === nextMonthYear;
-        })
-        .reduce((sum, v) => sum + v.total, 0);
+      visits.filter(v => v.status === 'Забронировано').forEach(v => {
+          let loopDate = new Date(v.checkIn);
+          loopDate.setHours(0, 0, 0, 0);
+          const endDate = new Date(v.checkOut);
+          endDate.setHours(0, 0, 0, 0);
+          
+          // Loop through each day of the visit
+          while (loopDate <= endDate) {
+              const m = loopDate.getMonth();
+              const y = loopDate.getFullYear();
+
+              if (m === currentMonth && y === currentYear) {
+                  forecastCurrent += v.pricePerDay;
+              } else if (m === nextMonth && y === nextMonthYear) {
+                  forecastNext += v.pricePerDay;
+              }
+              
+              // Add 1 day
+              loopDate.setDate(loopDate.getDate() + 1);
+          }
+      });
 
       document.getElementById('statIncome').textContent = formatMoney(income);
       document.getElementById('statVisits').textContent = completed.length;
