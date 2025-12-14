@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐕 Передержка собак</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #4a86e8;
+      --primary-dark: #3a76d8;
+      --success: #34a853;
+      --warning: #fbbc04;
+      --danger: #ea4335;
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --text: #202124;
+      --text-secondary: #5f6368;
+      --border: #dadce0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      --shadow-hover: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--primary);
+      color: white;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Navigation */
+    .nav {
+      display: flex;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 14px 16px;
+      border: none;
+      background: none;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Main content */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    /* Visit cards */
+    .visit-card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .visit-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .visit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .visit-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .visit-breed {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .visit-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-booked { background: #e8f0fe; color: #1967d2; }
+    .status-active { background: #e6f4ea; color: #137333; }
+    .status-completed { background: #f1f3f4; color: #5f6368; }
+    .status-cancelled { background: #fce8e6; color: #c5221f; }
+
+    .visit-details {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .visit-detail {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .visit-total {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--card);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .modal-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      font-size: 1.5rem;
+      box-shadow: var(--shadow-hover);
+      cursor: pointer;
+      z-index: 50;
+      transition: transform 0.2s;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #323232;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* Size badges */
+    .size-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .size-small { background: #e8f5e9; color: #2e7d32; }
+    .size-medium { background: #fff3e0; color: #ef6c00; }
+    .size-large { background: #fce4ec; color: #c2185b; }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .visit-details {
+        flex-wrap: wrap;
+      }
+    }
+
+    /* Period tabs */
+    .period-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .period-tab {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .period-tab.active {
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    /* Expense item */
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .expense-item:last-child {
+      border-bottom: none;
+    }
+
+    .expense-desc {
+      font-size: 0.95rem;
+    }
+
+    .expense-date {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .expense-amount {
+      font-weight: 500;
+      color: var(--danger);
+    }
+
+    /* Top list */
+    .top-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .top-item:last-child {
+      border-bottom: none;
+    }
+
+    .top-rank {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    .top-rank.gold { background: #ffd700; color: #5d4e00; }
+    .top-rank.silver { background: #c0c0c0; color: #404040; }
+    .top-rank.bronze { background: #cd7f32; color: #4a3000; }
+
+    .top-info {
+      flex: 1;
+    }
+
+    .top-name {
+      font-weight: 500;
+    }
+
+    .top-stats {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .top-revenue {
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    /* Settings input */
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-label {
+      font-weight: 500;
+    }
+
+    .settings-input {
+      width: 120px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-align: right;
+    }
+
+    /* Connection status */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #fff3e0;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .connection-status.connected {
+      background: #e8f5e9;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef6c00;
+    }
+
+    .connected .status-dot {
+      background: #4caf50;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <h1>🐕 Передержка собак</h1>
+    <div class="header-stats">
+      <span id="headerToday">Сегодня: —</span>
+      <span id="headerMonth">Месяц: —</span>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <button class="nav-btn active" data-section="visits">Визиты</button>
+    <button class="nav-btn" data-section="stats">Статистика</button>
+    <button class="nav-btn" data-section="settings">Настройки</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- Visits Section -->
+    <section id="visits" class="section active">
+      <div class="filters">
+        <button class="filter-btn active" data-filter="active">Активные</button>
+        <button class="filter-btn" data-filter="booked">Забронировано</button>
+        <button class="filter-btn" data-filter="completed">Завершённые</button>
+        <button class="filter-btn" data-filter="all">Все</button>
+      </div>
+
+      <div id="visitsList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="section">
+      <div class="period-tabs">
+        <button class="period-tab active" data-period="1">Месяц</button>
+        <button class="period-tab" data-period="3">3 мес</button>
+        <button class="period-tab" data-period="6">6 мес</button>
+        <button class="period-tab" data-period="12">Год</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statIncome">0 ₽</div>
+          <div class="stat-label">Доход</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statVisits">0</div>
+          <div class="stat-label">Визитов</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statDogs">0</div>
+          <div class="stat-label">Собак</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statAvg">0 ₽</div>
+          <div class="stat-label">Средний чек</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <div class="card-header">🏆 Топ собак по визитам</div>
+        <div class="card-body" id="topDogs">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings" class="section">
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-dot"></span>
+        <span>Подключение к Google Таблице...</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">💰 Цены за день</div>
+        <div class="card-body">
+          <div class="settings-row">
+            <span class="settings-label">Малая порода</span>
+            <input type="number" class="settings-input" id="priceSmall" value="1500"> ₽
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Средняя порода</span>
+            <input type="number" class="settings-input" id="priceMedium" value="2000"> ₽
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Большая порода</span>
+            <input type="number" class="settings-input" id="priceLarge" value="3000"> ₽
+          </div>
+          <button class="btn btn-primary btn-block" style="margin-top: 16px;" onclick="savePrices()">
+            Сохранить цены
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">🔗 Подключение</div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">URL Google Apps Script</label>
+            <input type="text" class="form-input" id="apiUrl" placeholder="https://script.google.com/macros/s/...">
+            <p class="form-hint">Вставьте URL после деплоя Apps Script как веб-приложения</p>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="saveApiUrl()">
+            Подключить
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">📱 Telegram</div>
+        <div class="card-body">
+          <p style="color: var(--text-secondary); margin-bottom: 12px;">
+            Chat ID: <strong id="chatIdDisplay">—</strong>
+          </p>
+          <button class="btn btn-secondary btn-block" onclick="testTelegram()">
+            🧪 Тестовое уведомление
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openNewVisitModal()">+</button>
+
+  <!-- New Visit Modal -->
+  <div class="modal-overlay" id="newVisitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Новый визит</h3>
+        <button class="modal-close" onclick="closeModal('newVisitModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Кличка *</label>
+          <input type="text" class="form-input" id="visitName" placeholder="Барсик">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Порода *</label>
+          <input type="text" class="form-input" id="visitBreed" placeholder="Корги">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Размер</label>
+          <select class="form-select" id="visitSize" onchange="updatePricePreview()">
+            <option value="Малая">Малая (1 500 ₽/день)</option>
+            <option value="Средняя">Средняя (2 000 ₽/день)</option>
+            <option value="Большая">Большая (3 000 ₽/день)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Заезд *</label>
+            <input type="date" class="form-input" id="visitCheckIn" onchange="calculateDays()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Выезд *</label>
+            <input type="date" class="form-input" id="visitCheckOut" onchange="calculateDays()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Своя цена за день (опционально)</label>
+          <input type="number" class="form-input" id="visitCustomPrice" placeholder="Оставьте пустым для стандартной" onchange="calculateDays()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Комментарий</label>
+          <textarea class="form-textarea" id="visitComment" rows="2" placeholder="Особенности, пожелания..."></textarea>
+        </div>
+        <div id="visitPreview" style="background: var(--bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
+          <strong>Итого:</strong> <span id="previewDays">0</span> дн. × <span id="previewPrice">0</span> ₽ = <span id="previewTotal" style="color: var(--success); font-weight: 600;">0 ₽</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('newVisitModal')">Отмена</button>
+        <button class="btn btn-primary" onclick="saveVisit()">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Visit Modal -->
+  <div class="modal-overlay" id="viewVisitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="viewVisitTitle">Визит</h3>
+        <button class="modal-close" onclick="closeModal('viewVisitModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="viewVisitContent">
+      </div>
+      <div class="modal-footer" id="viewVisitFooter">
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Modal -->
+  <div class="modal-overlay" id="expenseModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Добавить издержку</h3>
+        <button class="modal-close" onclick="closeModal('expenseModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="expenseVisitId">
+        <div class="form-group">
+          <label class="form-label">Описание *</label>
+          <input type="text" class="form-input" id="expenseDesc" placeholder="Химчистка, ремонт...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Сумма *</label>
+          <input type="number" class="form-input" id="expenseAmount" placeholder="500">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('expenseModal')">Отмена</button>
+        <button class="btn btn-primary" onclick="saveExpense()">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ==================== STATE ====================
+    let visits = [];
+    let expenses = [];
+    let prices = { 'Малая': 1500, 'Средняя': 2000, 'Большая': 3000 };
+    let currentFilter = 'active';
+    let currentPeriod = 1;
+    let apiUrl = localStorage.getItem('apiUrl') || '';
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavigation();
+      initFilters();
+      initPeriodTabs();
+      setDefaultDates();
+      
+      if (apiUrl) {
+        document.getElementById('apiUrl').value = apiUrl;
+        loadData();
+      } else {
+        showDemoData();
+      }
+    });
+
+    function initNavigation() {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.section).classList.add('active');
+        });
+      });
+    }
+
+    function initFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          renderVisits();
+        });
+      });
+    }
+
+    function initPeriodTabs() {
+      document.querySelectorAll('.period-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentPeriod = parseInt(tab.dataset.period);
+          updateStats();
+        });
+      });
+    }
+
+    function setDefaultDates() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('visitCheckIn').value = today;
+    }
+
+    // ==================== API ====================
+    async function loadData() {
+      try {
+        const response = await fetch(`${apiUrl}?action=getData`);
+        const data = await response.json();
+        
+        visits = data.visits || [];
+        expenses = data.expenses || [];
+        prices = data.prices || prices;
+        
+        document.getElementById('priceSmall').value = prices['Малая'];
+        document.getElementById('priceMedium').value = prices['Средняя'];
+        document.getElementById('priceLarge').value = prices['Большая'];
+        document.getElementById('chatIdDisplay').textContent = data.chatId || '—';
+        
+        setConnectionStatus(true);
+        renderVisits();
+        updateStats();
+        updateHeader();
+      } catch (e) {
+        console.error('Load error:', e);
+        setConnectionStatus(false);
+        showToast('Ошибка загрузки данных');
+      }
+    }
+
+    async function apiCall(action, payload) {
+      if (!apiUrl) {
+        showToast('Сначала подключите Google Таблицу');
+        return null;
+      }
+      
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          body: JSON.stringify({ action, ...payload })
+        });
+        return await response.json();
+      } catch (e) {
+        console.error('API error:', e);
+        showToast('Ошибка соединения');
+        return null;
+      }
+    }
+
+    // ==================== DEMO DATA ====================
+    function showDemoData() {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+      visits = [
+        { id: 1, name: 'Барсик', breed: 'Корги', size: 'Средняя', checkIn: today, checkOut: nextWeek, days: 8, pricePerDay: 2000, baseAmount: 16000, expenses: 500, total: 16500, comment: 'Аллергия на курицу', status: 'На передержке' },
+        { id: 2, name: 'Рекс', breed: 'Немецкая овчарка', size: 'Большая', checkIn: yesterday, checkOut: new Date(today.getTime() + 3*24*60*60*1000), days: 5, pricePerDay: 3000, baseAmount: 15000, expenses: 0, total: 15000, comment: '', status: 'На передержке' },
+        { id: 3, name: 'Мила', breed: 'Йоркширский терьер', size: 'Малая', checkIn: new Date(today.getTime() + 2*24*60*60*1000), checkOut: new Date(today.getTime() + 5*24*60*60*1000), days: 4, pricePerDay: 1500, baseAmount: 6000, expenses: 0, total: 6000, comment: 'Первый раз на передержке', status: 'Забронировано' },
+        { id: 4, name: 'Барсик', breed: 'Корги', size: 'Средняя', checkIn: lastMonth, checkOut: new Date(lastMonth.getTime() + 5*24*60*60*1000), days: 6, pricePerDay: 2000, baseAmount: 12000, expenses: 0, total: 12000, comment: '', status: 'Завершено' },
+        { id: 5, name: 'Джек', breed: 'Джек-рассел', size: 'Малая', checkIn: new Date(lastMonth.getTime() + 10*24*60*60*1000), checkOut: new Date(lastMonth.getTime() + 14*24*60*60*1000), days: 5, pricePerDay: 1500, baseAmount: 7500, expenses: 1000, total: 8500, comment: 'Погрыз подушку', status: 'Завершено' },
+      ];
+
+      expenses = [
+        { visitId: 1, date: today, description: 'Химчистка лежанки', amount: 500 },
+        { visitId: 5, date: new Date(lastMonth.getTime() + 13*24*60*60*1000), description: 'Замена подушки', amount: 1000 },
+      ];
+
+      setConnectionStatus(false, 'Демо-режим. Подключите Google Таблицу в настройках.');
+      renderVisits();
+      updateStats();
+      updateHeader();
+    }
+
+    // ==================== RENDER ====================
+    function renderVisits() {
+      const container = document.getElementById('visitsList');
+      
+      let filtered = visits.filter(v => {
+        if (currentFilter === 'active') return v.status === 'На передержке';
+        if (currentFilter === 'booked') return v.status === 'Забронировано';
+        if (currentFilter === 'completed') return v.status === 'Завершено';
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🐕</div>
+            <p>Нет визитов</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(v => `
+        <div class="visit-card" onclick="openVisitModal(${v.id})">
+          <div class="visit-header">
+            <div>
+              <div class="visit-name">${v.name}</div>
+              <div class="visit-breed">${v.breed} · <span class="size-badge size-${getSizeClass(v.size)}">${v.size}</span></div>
+            </div>
+            <span class="visit-status ${getStatusClass(v.status)}">${v.status}</span>
+          </div>
+          <div class="visit-details">
+            <div class="visit-detail">📅 ${formatDate(v.checkIn)} → ${formatDate(v.checkOut)}</div>
+            <div class="visit-detail">🌙 ${v.days} дн.</div>
+            <div class="visit-total">${formatMoney(v.total)}</div>
+          </div>
+          ${v.comment ? `<div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);">💬 ${v.comment}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function updateStats() {
+      const now = new Date();
+      const startDate = new Date(now);
+      startDate.setMonth(startDate.getMonth() - currentPeriod);
+
+      const completed = visits.filter(v => 
+        v.status === 'Завершено' && new Date(v.checkOut) >= startDate
+      );
+
+      const income = completed.reduce((sum, v) => sum + v.total, 0);
+      const uniqueDogs = new Set(completed.map(v => `${v.name}|${v.breed}`)).size;
+      const avg = completed.length > 0 ? Math.round(income / completed.length) : 0;
+
+      document.getElementById('statIncome').textContent = formatMoney(income);
+      document.getElementById('statVisits').textContent = completed.length;
+      document.getElementById('statDogs').textContent = uniqueDogs;
+      document.getElementById('statAvg').textContent = formatMoney(avg);
+
+      // Top dogs
+      const dogStats = {};
+      visits.filter(v => v.status === 'Завершено').forEach(v => {
+        const key = `${v.name} (${v.breed})`;
+        if (!dogStats[key]) dogStats[key] = { visits: 0, revenue: 0 };
+        dogStats[key].visits++;
+        dogStats[key].revenue += v.total;
+      });
+
+      const sorted = Object.entries(dogStats)
+        .sort((a, b) => b[1].visits - a[1].visits)
+        .slice(0, 5);
+
+      const topContainer = document.getElementById('topDogs');
+      if (sorted.length === 0) {
+        topContainer.innerHTML = '<p style="color: var(--text-secondary);">Пока нет завершённых визитов</p>';
+      } else {
+        topContainer.innerHTML = sorted.map(([name, stats], i) => `
+          <div class="top-item">
+            <div class="top-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</div>
+            <div class="top-info">
+              <div class="top-name">${name}</div>
+              <div class="top-stats">${stats.visits} визит(ов)</div>
+            </div>
+            <div class="top-revenue">${formatMoney(stats.revenue)}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function updateHeader() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const activeToday = visits.filter(v => 
+        (v.status === 'На передержке' || v.status === 'Забронировано') &&
+        new Date(v.checkIn) <= today && new Date(v.checkOut) >= today
+      ).length;
+
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      const monthIncome = visits
+        .filter(v => v.status === 'Завершено' && new Date(v.checkOut) >= monthStart)
+        .reduce((sum, v) => sum + v.total, 0);
+
+      document.getElementById('headerToday').textContent = `Сегодня: ${activeToday} 🐕`;
+      document.getElementById('headerMonth').textContent = `Месяц: ${formatMoney(monthIncome)}`;
+    }
+
+    // ==================== MODALS ====================
+    function openNewVisitModal() {
+      document.getElementById('visitName').value = '';
+      document.getElementById('visitBreed').value = '';
+      document.getElementById('visitSize').value = 'Малая';
+      document.getElementById('visitCustomPrice').value = '';
+      document.getElementById('visitComment').value = '';
+      setDefaultDates();
+      document.getElementById('visitCheckOut').value = '';
+      calculateDays();
+      openModal('newVisitModal');
+    }
+
+    function openVisitModal(id) {
+      const visit = visits.find(v => v.id === id);
+      if (!visit) return;
+
+      const visitExpenses = expenses.filter(e => e.visitId === id);
+
+      document.getElementById('viewVisitTitle').textContent = `${visit.name} (${visit.breed})`;
+      
+      document.getElementById('viewVisitContent').innerHTML = `
+        <div style="margin-bottom: 16px;">
+          <span class="visit-status ${getStatusClass(visit.status)}">${visit.status}</span>
+          <span class="size-badge size-${getSizeClass(visit.size)}" style="margin-left: 8px;">${visit.size}</span>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">Заезд</div>
+            <div style="font-weight: 500;">${formatDate(visit.checkIn)}</div>
+          </div>
+          <div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem;">Выезд</div>
+            <div style="font-weight: 500;">${formatDate(visit.checkOut)}</div>
+          </div>
+        </div>
+
+        <div style="background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span>${visit.days} дн. × ${formatMoney(visit.pricePerDay)}</span>
+            <span>${formatMoney(visit.baseAmount)}</span>
+          </div>
+          ${visit.expenses > 0 ? `
+          <div style="display: flex; justify-content: space-between; color: var(--danger);">
+            <span>Издержки</span>
+            <span>+${formatMoney(visit.expenses)}</span>
+          </div>
+          ` : ''}
+          <div style="display: flex; justify-content: space-between; font-weight: 600; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);">
+            <span>Итого</span>
+            <span style="color: var(--success);">${formatMoney(visit.total)}</span>
+          </div>
+        </div>
+
+        ${visit.comment ? `
+        <div style="margin-bottom: 16px;">
+          <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 4px;">Комментарий</div>
+          <div>${visit.comment}</div>
+        </div>
+        ` : ''}
+
+        ${visitExpenses.length > 0 ? `
+        <div>
+          <div style="font-weight: 500; margin-bottom: 8px;">Издержки</div>
+          ${visitExpenses.map(e => `
+            <div class="expense-item">
+              <div>
+                <div class="expense-desc">${e.description}</div>
+                <div class="expense-date">${formatDate(e.date)}</div>
+              </div>
+              <div class="expense-amount">+${formatMoney(e.amount)}</div>
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+      `;
+
+      let footerHtml = '';
+      
+      if (visit.status === 'Забронировано') {
+        footerHtml = `
+          <button class="btn btn-secondary" onclick="closeModal('viewVisitModal')">Закрыть</button>
+          <button class="btn btn-success" onclick="changeStatus(${id}, 'На передержке')">🐕 Заехал</button>
+        `;
+      } else if (visit.status === 'На передержке') {
+        footerHtml = `
+          <button class="btn btn-secondary" onclick="openExpenseModal(${id})">+ Издержка</button>
+          <button class="btn btn-primary" onclick="changeStatus(${id}, 'Завершено')">✅ Выехал</button>
+        `;
+      } else {
+        footerHtml = `<button class="btn btn-secondary" onclick="closeModal('viewVisitModal')">Закрыть</button>`;
+      }
+
+      document.getElementById('viewVisitFooter').innerHTML = footerHtml;
+      openModal('viewVisitModal');
+    }
+
+    function openExpenseModal(visitId) {
+      document.getElementById('expenseVisitId').value = visitId;
+      document.getElementById('expenseDesc').value = '';
+      document.getElementById('expenseAmount').value = '';
+      closeModal('viewVisitModal');
+      openModal('expenseModal');
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // ==================== ACTIONS ====================
+    async function saveVisit() {
+      const data = {
+        name: document.getElementById('visitName').value.trim(),
+        breed: document.getElementById('visitBreed').value.trim(),
+        size: document.getElementById('visitSize').value,
+        checkIn: document.getElementById('visitCheckIn').value,
+        checkOut: document.getElementById('visitCheckOut').value,
+        customPrice: document.getElementById('visitCustomPrice').value,
+        comment: document.getElementById('visitComment').value.trim()
+      };
+
+      if (!data.name || !data.breed || !data.checkIn || !data.checkOut) {
+        showToast('Заполните обязательные поля');
+        return;
+      }
+
+      if (apiUrl) {
+        const result = await apiCall('addVisit', data);
+        if (result && result.success) {
+          showToast('Визит добавлен!');
+          loadData();
+        }
+      } else {
+        // Demo mode
+        const checkIn = new Date(data.checkIn);
+        const checkOut = new Date(data.checkOut);
+        const days = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)) + 1;
+        const pricePerDay = data.customPrice ? parseInt(data.customPrice) : prices[data.size];
+        const baseAmount = days * pricePerDay;
+
+        visits.unshift({
+          id: Math.max(...visits.map(v => v.id), 0) + 1,
+          name: data.name,
+          breed: data.breed,
+          size: data.size,
+          checkIn: checkIn,
+          checkOut: checkOut,
+          days: days,
+          pricePerDay: pricePerDay,
+          baseAmount: baseAmount,
+          expenses: 0,
+          total: baseAmount,
+          comment: data.comment,
+          status: 'Забронировано'
+        });
+
+        showToast('Визит добавлен (демо)');
+        renderVisits();
+        updateStats();
+        updateHeader();
+      }
+
+      closeModal('newVisitModal');
+    }
+
+    async function saveExpense() {
+      const visitId = parseInt(document.getElementById('expenseVisitId').value);
+      const description = document.getElementById('expenseDesc').value.trim();
+      const amount = parseInt(document.getElementById('expenseAmount').value);
+
+      if (!description || !amount) {
+        showToast('Заполните все поля');
+        return;
+      }
+
+      if (apiUrl) {
+        const result = await apiCall('addExpense', { visitId, description, amount });
+        if (result && result.success) {
+          showToast('Издержка добавлена!');
+          loadData();
+        }
+      } else {
+        // Demo mode
+        expenses.push({ visitId, date: new Date(), description, amount });
+        
+        const visit = visits.find(v => v.id === visitId);
+        if (visit) {
+          visit.expenses += amount;
+          visit.total = visit.baseAmount + visit.expenses;
+        }
+
+        showToast('Издержка добавлена (демо)');
+        renderVisits();
+      }
+
+      closeModal('expenseModal');
+    }
+
+    async function changeStatus(id, newStatus) {
+      if (apiUrl) {
+        const result = await apiCall('changeStatus', { id, status: newStatus });
+        if (result && result.success) {
+          showToast('Статус обновлён!');
+          loadData();
+        }
+      } else {
+        // Demo mode
+        const visit = visits.find(v => v.id === id);
+        if (visit) {
+          visit.status = newStatus;
+          showToast('Статус обновлён (демо)');
+          renderVisits();
+          updateStats();
+          updateHeader();
+        }
+      }
+
+      closeModal('viewVisitModal');
+    }
+
+    function calculateDays() {
+      const checkIn = document.getElementById('visitCheckIn').value;
+      const checkOut = document.getElementById('visitCheckOut').value;
+      const size = document.getElementById('visitSize').value;
+      const customPrice = document.getElementById('visitCustomPrice').value;
+
+      if (checkIn && checkOut) {
+        const days = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)) + 1;
+        const price = customPrice ? parseInt(customPrice) : prices[size];
+        const total = days * price;
+
+        document.getElementById('previewDays').textContent = days;
+        document.getElementById('previewPrice').textContent = formatMoney(price).replace(' ₽', '');
+        document.getElementById('previewTotal').textContent = formatMoney(total);
+      }
+    }
+
+    function updatePricePreview() {
+      calculateDays();
+      const size = document.getElementById('visitSize').value;
+      const options = document.getElementById('visitSize').options;
+      for (let opt of options) {
+        const s = opt.value;
+        opt.textContent = `${s} (${formatMoney(prices[s])}/день)`;
+      }
+    }
+
+    // ==================== SETTINGS ====================
+    function saveApiUrl() {
+      apiUrl = document.getElementById('apiUrl').value.trim();
+      if (apiUrl) {
+        localStorage.setItem('apiUrl', apiUrl);
+        showToast('Подключение...');
+        loadData();
+      }
+    }
+
+    async function savePrices() {
+      prices['Малая'] = parseInt(document.getElementById('priceSmall').value) || 1500;
+      prices['Средняя'] = parseInt(document.getElementById('priceMedium').value) || 2000;
+      prices['Большая'] = parseInt(document.getElementById('priceLarge').value) || 3000;
+
+      if (apiUrl) {
+        const result = await apiCall('savePrices', { prices });
+        if (result && result.success) {
+          showToast('Цены сохранены!');
+        }
+      } else {
+        showToast('Цены сохранены (демо)');
+      }
+
+      updatePricePreview();
+    }
+
+    async function testTelegram() {
+      if (apiUrl) {
+        const result = await apiCall('testTelegram', {});
+        if (result && result.success) {
+          showToast('Сообщение отправлено!');
+        }
+      } else {
+        showToast('Подключите Google Таблицу');
+      }
+    }
+
+    function setConnectionStatus(connected, message) {
+      const el = document.getElementById('connectionStatus');
+      if (connected) {
+        el.classList.add('connected');
+        el.innerHTML = '<span class="status-dot"></span><span>Подключено к Google Таблице</span>';
+      } else {
+        el.classList.remove('connected');
+        el.innerHTML = `<span class="status-dot"></span><span>${message || 'Не подключено'}</span>`;
+      }
+    }
+
+    // ==================== UTILS ====================
+    function formatDate(date) {
+      if (!date) return '—';
+      const d = new Date(date);
+      return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    }
+
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('ru-RU').format(amount) + ' ₽';
+    }
+
+    function getStatusClass(status) {
+      const map = {
+        'Забронировано': 'status-booked',
+        'На передержке': 'status-active',
+        'Завершено': 'status-completed',
+        'Отменено': 'status-cancelled'
+      };
+      return map[status] || '';
+    }
+
+    function getSizeClass(size) {
+      const map = { 'Малая': 'small', 'Средняя': 'medium', 'Большая': 'large' };
+      return map[size] || '';
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
