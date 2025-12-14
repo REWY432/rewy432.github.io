@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#4a86e8">
   <meta name="description" content="Система учёта передержки собак">
   
-  <title>🐕 Передержка собак 3.5</title>
+  <title>🐕 Передержка собак 3.7</title>
   
   <!-- Apple Touch Icon -->
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234a86e8'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='60'%3E🐕%3C/text%3E%3C/svg%3E">
@@ -652,6 +652,7 @@
       background: var(--card);
       position: sticky;
       bottom: 0;
+      flex-wrap: wrap; /* Allow wrapping for multiple buttons */
     }
 
     /* Mobile specific modal (Bottom Sheet) */
@@ -1965,6 +1966,7 @@
         footerHtml = `
           ${editBtn}
           ${historyBtn}
+          <button class="btn btn-secondary" onclick="openExpenseModal(${id})">+ Издержка</button>
           <button class="btn btn-secondary" onclick="closeModal('viewVisitModal')">Закрыть</button>
           <button class="btn btn-success" onclick="changeStatus(${id}, 'На передержке')">🐕 Заехал</button>
         `;
