@@ -2,8 +2,17 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Передержка">
+  <meta name="theme-color" content="#4a86e8">
+  <meta name="description" content="Система учёта передержки собак">
+  
   <title>🐕 Передержка собак</title>
+  
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234a86e8'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='60'%3E🐕%3C/text%3E%3C/svg%3E">
   <style>
     * {
       margin: 0;
@@ -494,6 +503,66 @@
     .size-medium { background: #fff3e0; color: #ef6c00; }
     .size-large { background: #fce4ec; color: #c2185b; }
 
+    /* PWA Install Banner */
+    .install-banner {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      padding: 16px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 150;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .install-banner.show {
+      display: flex;
+    }
+
+    .install-banner-text {
+      flex: 1;
+    }
+
+    .install-banner-title {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .install-banner-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .install-banner .btn {
+      white-space: nowrap;
+    }
+
+    .install-banner-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Offline indicator */
+    .offline-bar {
+      display: none;
+      background: var(--warning);
+      color: #5d4e00;
+      text-align: center;
+      padding: 8px;
+      font-size: 0.85rem;
+    }
+
+    .offline-bar.show {
+      display: block;
+    }
+
     /* Responsive */
     @media (max-width: 480px) {
       .form-row {
@@ -657,6 +726,9 @@
   </style>
 </head>
 <body>
+
+  <!-- Offline Bar -->
+  <div class="offline-bar" id="offlineBar">📴 Нет подключения к интернету</div>
 
   <!-- Header -->
   <header class="header">
@@ -878,6 +950,16 @@
     </div>
   </div>
 
+  <!-- PWA Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-banner-text">
+      <div class="install-banner-title">Установить приложение</div>
+      <div class="install-banner-desc">Добавьте на главный экран</div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="installBtn">Установить</button>
+    <button class="install-banner-close" id="installClose">&times;</button>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
@@ -888,7 +970,57 @@
     let prices = { 'Малая': 1500, 'Средняя': 2000, 'Большая': 3000 };
     let currentFilter = 'active';
     let currentPeriod = 1;
-    let apiUrl = localStorage.getItem('apiUrl') || '';
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby24iFK8v7HL9QD5ByUBsNqzbgWs47MeGw_LtXv-aedmDtRin9UJjI6vbn6PLAidNiW/exec';
+    let apiUrl = localStorage.getItem('apiUrl') || DEFAULT_API_URL;
+
+    // ==================== PWA ====================
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+        const CACHE_NAME = 'dog-boarding-v1';
+        const OFFLINE_URL = '/';
+        
+        self.addEventListener('install', (event) => {
+          self.skipWaiting();
+        });
+        
+        self.addEventListener('activate', (event) => {
+          event.waitUntil(clients.claim());
+        });
+        
+        self.addEventListener('fetch', (event) => {
+          if (event.request.method === 'GET') {
+            event.respondWith(
+              fetch(event.request).catch(() => caches.match(event.request))
+            );
+          }
+        });
+      `)).catch(() => {});
+    }
+
+    // Register PWA manifest dynamically
+    const manifestData = {
+      name: "Передержка собак",
+      short_name: "Передержка",
+      description: "Система учёта передержки собак",
+      start_url: location.href,
+      display: "standalone",
+      background_color: "#f8f9fa",
+      theme_color: "#4a86e8",
+      orientation: "portrait",
+      icons: [{
+        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234a86e8'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='60'%3E🐕%3C/text%3E%3C/svg%3E",
+        sizes: "512x512",
+        type: "image/svg+xml",
+        purpose: "any maskable"
+      }]
+    };
+    
+    const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+    const manifestURL = URL.createObjectURL(manifestBlob);
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = manifestURL;
+    document.head.appendChild(manifestLink);
 
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', () => {
@@ -897,12 +1029,8 @@
       initPeriodTabs();
       setDefaultDates();
       
-      if (apiUrl) {
-        document.getElementById('apiUrl').value = apiUrl;
-        loadData();
-      } else {
-        showDemoData();
-      }
+      document.getElementById('apiUrl').value = apiUrl;
+      loadData();
     });
 
     function initNavigation() {
@@ -962,11 +1090,31 @@
         renderVisits();
         updateStats();
         updateHeader();
+        cacheData();
       } catch (e) {
         console.error('Load error:', e);
         setConnectionStatus(false);
-        showToast('Ошибка загрузки данных');
+        
+        // Если есть кэшированные данные в localStorage, используем их
+        const cached = localStorage.getItem('cachedVisits');
+        if (cached) {
+          const cachedData = JSON.parse(cached);
+          visits = cachedData.visits || [];
+          expenses = cachedData.expenses || [];
+          showToast('Загружены кэшированные данные');
+        } else {
+          showToast('Ошибка загрузки. Проверьте подключение.');
+        }
+        
+        renderVisits();
+        updateStats();
+        updateHeader();
       }
+    }
+
+    // Кэшируем данные после успешной загрузки
+    function cacheData() {
+      localStorage.setItem('cachedVisits', JSON.stringify({ visits, expenses }));
     }
 
     async function apiCall(action, payload) {
@@ -1465,6 +1613,55 @@
         }
       });
     });
+
+    // ==================== PWA INSTALL ====================
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Показываем баннер если не установлено
+      if (!localStorage.getItem('pwaInstallDismissed')) {
+        document.getElementById('installBanner').classList.add('show');
+      }
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          showToast('Приложение установлено!');
+        }
+        deferredPrompt = null;
+        document.getElementById('installBanner').classList.remove('show');
+      }
+    });
+
+    document.getElementById('installClose').addEventListener('click', () => {
+      document.getElementById('installBanner').classList.remove('show');
+      localStorage.setItem('pwaInstallDismissed', 'true');
+    });
+
+    // Detect if running as PWA
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('installBanner').classList.remove('show');
+    }
+
+    // ==================== OFFLINE DETECTION ====================
+    function updateOnlineStatus() {
+      const offlineBar = document.getElementById('offlineBar');
+      if (navigator.onLine) {
+        offlineBar.classList.remove('show');
+      } else {
+        offlineBar.classList.add('show');
+      }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
   </script>
 
 </body>
