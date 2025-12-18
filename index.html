@@ -891,7 +891,7 @@
       font-weight: 500;
     }
 
-    /* Gantt Container */
+    /* Gantt Container - Fixed height layout */
     .gantt-container {
       display: none;
       background: var(--card);
@@ -902,7 +902,18 @@
     .gantt-container.active {
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 300px);
+      /* Use viewport height minus header/nav/toggle height */
+      height: calc(100vh - 200px);
+      height: calc(100dvh - 200px); /* Dynamic viewport height for mobile */
+      min-height: 400px;
+    }
+    
+    @media (max-height: 700px) {
+      .gantt-container.active {
+        height: calc(100vh - 180px);
+        height: calc(100dvh - 180px);
+        min-height: 300px;
+      }
     }
 
     /* Gantt Header - Fixed at top */
@@ -961,30 +972,6 @@
     }
     .gantt-today-btn:active {
       opacity: 0.9;
-    }
-
-    /* Mode toggle (week/month) */
-    .gantt-mode-toggle {
-      display: flex;
-      background: var(--card);
-      border-radius: 8px;
-      padding: 2px;
-      border: 1px solid var(--border);
-    }
-    .gantt-mode-btn {
-      padding: 6px 12px;
-      border: none;
-      background: transparent;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-    }
-    .gantt-mode-btn.active {
-      background: var(--primary);
-      color: white;
-      font-weight: 500;
     }
 
     /* Summary bar (mini calendar view) - Fixed */
@@ -1053,7 +1040,7 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
       scroll-behavior: smooth;
-      min-height: 200px;
+      min-height: 0; /* Important for flex child */
     }
 
     /* Day Section */
@@ -1335,12 +1322,8 @@
         <div class="gantt-header">
           <div class="gantt-nav">
             <button class="gantt-nav-btn" onclick="ganttPrev()">◀</button>
-            <span class="gantt-period-label" id="ganttPeriodLabel">10–16 дек</span>
+            <span class="gantt-period-label" id="ganttPeriodLabel">Декабрь 2024</span>
             <button class="gantt-nav-btn" onclick="ganttNext()">▶</button>
-          </div>
-          <div class="gantt-mode-toggle">
-            <button class="gantt-mode-btn active" data-mode="week" onclick="setGanttMode('week')">7 дней</button>
-            <button class="gantt-mode-btn" data-mode="month" onclick="setGanttMode('month')">Месяц</button>
           </div>
           <button class="gantt-today-btn" onclick="ganttGoToday()">Сегодня</button>
         </div>
@@ -1644,7 +1627,6 @@
     let undoAction = null;
     let currentView = 'list'; // 'list' or 'gantt'
     let ganttStartDate = null; // Initialized in DOMContentLoaded
-    let ganttMode = 'week'; // 'week' or 'month'
 
     const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby24iFK8v7HL9QD5ByUBsNqzbgWs47MeGw_LtXv-aedmDtRin9UJjI6vbn6PLAidNiW/exec';
     let apiUrl = localStorage.getItem('apiUrl') || DEFAULT_API_URL;
@@ -1700,7 +1682,7 @@
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', () => {
       // Initialize gantt start date
-      ganttStartDate = getWeekStart(new Date());
+      ganttStartDate = getMonthStart(new Date());
       
       initNavigation();
       initFilters();
@@ -1723,6 +1705,7 @@
           document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
           btn.classList.add('active');
           document.getElementById(btn.dataset.section).classList.add('active');
+          
           if (btn.dataset.section === 'stats') {
              setTimeout(renderChart, 100); // Render chart when visible
           }
@@ -2142,27 +2125,27 @@
       // Show/hide containers
       const listContainer = document.getElementById('visitsList');
       const ganttContainer = document.getElementById('ganttContainer');
+      const calendarWrapper = document.getElementById('calendarWrapper');
+      const searchRow = document.querySelector('.search-row');
+      const filters = document.querySelector('.filters');
       
       if (view === 'list') {
         listContainer.style.display = 'block';
         ganttContainer.classList.remove('active');
+        if (calendarWrapper) calendarWrapper.style.display = 'block';
+        if (searchRow) searchRow.style.display = 'flex';
+        if (filters) filters.style.display = 'flex';
       } else {
         listContainer.style.display = 'none';
         ganttContainer.classList.add('active');
+        if (calendarWrapper) calendarWrapper.style.display = 'none';
+        if (searchRow) searchRow.style.display = 'none';
+        if (filters) filters.style.display = 'none';
         renderGantt();
       }
     }
 
     // ==================== GANTT CHART (Vertical Mobile) ====================
-    function getWeekStart(date) {
-      const d = new Date(date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
-      d.setDate(diff);
-      d.setHours(0, 0, 0, 0);
-      return d;
-    }
-
     function getMonthStart(date) {
       const d = new Date(date);
       d.setDate(1);
@@ -2170,45 +2153,18 @@
       return d;
     }
 
-    function setGanttMode(mode) {
-      ganttMode = mode;
-      document.querySelectorAll('.gantt-mode-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.mode === mode);
-      });
-      
-      // Reset to current period
-      if (mode === 'week') {
-        ganttStartDate = getWeekStart(new Date());
-      } else {
-        ganttStartDate = getMonthStart(new Date());
-      }
-      renderGantt();
-    }
-
     function ganttPrev() {
-      if (ganttMode === 'week') {
-        ganttStartDate.setDate(ganttStartDate.getDate() - 7);
-      } else {
-        ganttStartDate.setMonth(ganttStartDate.getMonth() - 1);
-      }
+      ganttStartDate.setMonth(ganttStartDate.getMonth() - 1);
       renderGantt();
     }
 
     function ganttNext() {
-      if (ganttMode === 'week') {
-        ganttStartDate.setDate(ganttStartDate.getDate() + 7);
-      } else {
-        ganttStartDate.setMonth(ganttStartDate.getMonth() + 1);
-      }
+      ganttStartDate.setMonth(ganttStartDate.getMonth() + 1);
       renderGantt();
     }
 
     function ganttGoToday() {
-      if (ganttMode === 'week') {
-        ganttStartDate = getWeekStart(new Date());
-      } else {
-        ganttStartDate = getMonthStart(new Date());
-      }
+      ganttStartDate = getMonthStart(new Date());
       renderGantt();
       showToast('📅 Сегодня');
     }
@@ -2221,32 +2177,19 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      // Calculate days to show
+      // Calculate days in month
+      const daysInMonth = new Date(ganttStartDate.getFullYear(), ganttStartDate.getMonth() + 1, 0).getDate();
       let days = [];
-      if (ganttMode === 'week') {
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(ganttStartDate);
-          d.setDate(d.getDate() + i);
-          days.push(d);
-        }
-      } else {
-        const daysInMonth = new Date(ganttStartDate.getFullYear(), ganttStartDate.getMonth() + 1, 0).getDate();
-        for (let i = 0; i < daysInMonth; i++) {
-          const d = new Date(ganttStartDate);
-          d.setDate(d.getDate() + i);
-          days.push(d);
-        }
+      for (let i = 0; i < daysInMonth; i++) {
+        const d = new Date(ganttStartDate);
+        d.setDate(d.getDate() + i);
+        days.push(d);
       }
       
       const periodEnd = days[days.length - 1];
       
       // Format period label
-      if (ganttMode === 'week') {
-        const formatShort = (d) => d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-        periodLabel.textContent = `${formatShort(ganttStartDate)} – ${formatShort(periodEnd)}`;
-      } else {
-        periodLabel.textContent = ganttStartDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
-      }
+      periodLabel.textContent = ganttStartDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
       
       // Render summary bar
       let summaryHtml = '';
