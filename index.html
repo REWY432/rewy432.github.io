@@ -864,6 +864,284 @@
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .view-toggle-btn {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .view-toggle-btn.active {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-weight: 500;
+    }
+
+    /* Gantt Chart */
+    .gantt-container {
+      display: none;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .gantt-container.active {
+      display: block;
+    }
+
+    .gantt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .gantt-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .gantt-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gantt-nav-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .gantt-nav-btn:active {
+      background: var(--bg);
+    }
+    .gantt-month-label {
+      font-weight: 500;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    .gantt-scroll {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 60vh;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gantt-grid {
+      display: grid;
+      min-width: max-content;
+    }
+
+    /* Gantt Header Row (Days) */
+    .gantt-days-row {
+      display: contents;
+    }
+    .gantt-corner {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: var(--card);
+      border-bottom: 2px solid var(--border);
+      border-right: 1px solid var(--border);
+      min-width: 120px;
+      padding: 8px;
+    }
+    .gantt-day-cell {
+      text-align: center;
+      padding: 6px 2px;
+      font-size: 0.7rem;
+      border-bottom: 2px solid var(--border);
+      border-right: 1px solid #f0f0f0;
+      min-width: 32px;
+      background: var(--card);
+    }
+    .gantt-day-cell.weekend {
+      background: #fafafa;
+    }
+    .gantt-day-cell.today {
+      background: #e8f0fe;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .gantt-day-name {
+      color: var(--text-secondary);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+    }
+    .gantt-day-num {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    /* Gantt Data Rows */
+    .gantt-row {
+      display: contents;
+    }
+    .gantt-row:hover .gantt-label,
+    .gantt-row:hover .gantt-cell {
+      background: #f8f9ff;
+    }
+    .gantt-label {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--card);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .gantt-label-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gantt-label-breed {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gantt-cell {
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid #f5f5f5;
+      min-width: 32px;
+      height: 48px;
+      background: var(--card);
+      position: relative;
+    }
+    .gantt-cell.weekend {
+      background: #fafafa;
+    }
+    .gantt-cell.today {
+      background: rgba(74, 134, 232, 0.05);
+    }
+
+    /* Gantt Bars */
+    .gantt-bar {
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: white;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 6px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      z-index: 1;
+    }
+    .gantt-bar:active {
+      transform: scale(0.98);
+    }
+    .gantt-bar.status-active {
+      background: linear-gradient(135deg, #34a853 0%, #2d9249 100%);
+      box-shadow: 0 2px 4px rgba(52, 168, 83, 0.3);
+    }
+    .gantt-bar.status-booked {
+      background: linear-gradient(135deg, #4a86e8 0%, #3a76d8 100%);
+      box-shadow: 0 2px 4px rgba(74, 134, 232, 0.3);
+    }
+    .gantt-bar.status-completed {
+      background: linear-gradient(135deg, #9aa0a6 0%, #80868b 100%);
+      box-shadow: 0 2px 4px rgba(154, 160, 166, 0.3);
+    }
+
+    /* Load indicator row */
+    .gantt-load-row {
+      display: contents;
+    }
+    .gantt-load-label {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--bg);
+      padding: 8px 12px;
+      border-right: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .gantt-load-cell {
+      background: var(--bg);
+      text-align: center;
+      padding: 6px 2px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      min-width: 32px;
+      border-right: 1px solid #f0f0f0;
+    }
+    .gantt-load-cell.load-0 { color: #bbb; }
+    .gantt-load-cell.load-low { color: var(--success); }
+    .gantt-load-cell.load-med { color: var(--warning); }
+    .gantt-load-cell.load-high { color: var(--danger); }
+
+    /* Empty Gantt State */
+    .gantt-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    .gantt-empty-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    /* Legend */
+    .gantt-legend {
+      display: flex;
+      gap: 16px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-wrap: wrap;
+    }
+    .gantt-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .gantt-legend-color {
+      width: 16px;
+      height: 10px;
+      border-radius: 3px;
+    }
+    .gantt-legend-color.active { background: #34a853; }
+    .gantt-legend-color.booked { background: #4a86e8; }
+    .gantt-legend-color.completed { background: #9aa0a6; }
+
   </style>
 </head>
 <body>
@@ -922,10 +1200,48 @@
           <button class="filter-btn" data-filter="completed">Архив</button>
           <button class="filter-btn" data-filter="all">Все</button>
         </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" data-view="list" onclick="switchView('list')">📋 Список</button>
+          <button class="view-toggle-btn" data-view="gantt" onclick="switchView('gantt')">📊 Гант</button>
+        </div>
       </div>
 
+      <!-- List View -->
       <div id="visitsList">
         <!-- JS rendered content -->
+      </div>
+
+      <!-- Gantt View -->
+      <div class="gantt-container" id="ganttContainer">
+        <div class="gantt-header">
+          <span class="gantt-title">📊 Загруженность</span>
+          <div class="gantt-nav">
+            <button class="gantt-nav-btn" onclick="ganttPrevMonth()">◀</button>
+            <span class="gantt-month-label" id="ganttMonthLabel">Декабрь 2024</span>
+            <button class="gantt-nav-btn" onclick="ganttNextMonth()">▶</button>
+          </div>
+        </div>
+        <div class="gantt-scroll" id="ganttScroll">
+          <div class="gantt-grid" id="ganttGrid">
+            <!-- JS generated -->
+          </div>
+        </div>
+        <div class="gantt-legend">
+          <div class="gantt-legend-item">
+            <div class="gantt-legend-color active"></div>
+            <span>На передержке</span>
+          </div>
+          <div class="gantt-legend-item">
+            <div class="gantt-legend-color booked"></div>
+            <span>Забронировано</span>
+          </div>
+          <div class="gantt-legend-item">
+            <div class="gantt-legend-color completed"></div>
+            <span>Завершено</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1197,6 +1513,9 @@
     let selectedCalendarDate = null;
     let calendarExpanded = false;
     let undoAction = null;
+    let currentView = 'list'; // 'list' or 'gantt'
+    let ganttMonth = new Date().getMonth();
+    let ganttYear = new Date().getFullYear();
 
     const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby24iFK8v7HL9QD5ByUBsNqzbgWs47MeGw_LtXv-aedmDtRin9UJjI6vbn6PLAidNiW/exec';
     let apiUrl = localStorage.getItem('apiUrl') || DEFAULT_API_URL;
@@ -1458,6 +1777,7 @@
         updateClientDatalist();
         renderCalendar();
         renderVisits();
+        if (currentView === 'gantt') renderGantt();
         updateStats();
         updateHeader();
         renderChart();
@@ -1479,6 +1799,7 @@
         updateClientDatalist();
         renderCalendar();
         renderVisits();
+        if (currentView === 'gantt') renderGantt();
         updateStats();
         updateHeader();
         renderChart();
@@ -1675,6 +1996,228 @@
     function formatMoneyShort(val) {
         if (val >= 1000) return (val / 1000).toFixed(1) + 'к';
         return val;
+    }
+
+    // ==================== VIEW TOGGLE ====================
+    function switchView(view) {
+      currentView = view;
+      
+      // Update toggle buttons
+      document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+      
+      // Show/hide containers
+      const listContainer = document.getElementById('visitsList');
+      const ganttContainer = document.getElementById('ganttContainer');
+      
+      if (view === 'list') {
+        listContainer.style.display = 'block';
+        ganttContainer.classList.remove('active');
+      } else {
+        listContainer.style.display = 'none';
+        ganttContainer.classList.add('active');
+        renderGantt();
+      }
+    }
+
+    // ==================== GANTT CHART ====================
+    function ganttPrevMonth() {
+      ganttMonth--;
+      if (ganttMonth < 0) {
+        ganttMonth = 11;
+        ganttYear--;
+      }
+      renderGantt();
+    }
+
+    function ganttNextMonth() {
+      ganttMonth++;
+      if (ganttMonth > 11) {
+        ganttMonth = 0;
+        ganttYear++;
+      }
+      renderGantt();
+    }
+
+    function renderGantt() {
+      const grid = document.getElementById('ganttGrid');
+      const monthLabel = document.getElementById('ganttMonthLabel');
+      
+      // Update month label
+      const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+      monthLabel.textContent = `${monthNames[ganttMonth]} ${ganttYear}`;
+      
+      // Get days in month
+      const daysInMonth = new Date(ganttYear, ganttMonth + 1, 0).getDate();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Filter visits that overlap with this month
+      const monthStart = new Date(ganttYear, ganttMonth, 1);
+      const monthEnd = new Date(ganttYear, ganttMonth, daysInMonth, 23, 59, 59);
+      
+      const relevantVisits = visits.filter(v => {
+        const checkIn = new Date(v.checkIn);
+        const checkOut = new Date(v.checkOut);
+        // Visit overlaps with month if: checkIn <= monthEnd AND checkOut >= monthStart
+        return checkIn <= monthEnd && checkOut >= monthStart;
+      }).sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn));
+      
+      if (relevantVisits.length === 0) {
+        grid.innerHTML = `
+          <div class="gantt-empty">
+            <div class="gantt-empty-icon">📅</div>
+            <p>Нет визитов в этом месяце</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Calculate load per day
+      const loadPerDay = {};
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateCheck = new Date(ganttYear, ganttMonth, d);
+        loadPerDay[d] = relevantVisits.filter(v => {
+          const checkIn = new Date(v.checkIn);
+          checkIn.setHours(0, 0, 0, 0);
+          const checkOut = new Date(v.checkOut);
+          checkOut.setHours(23, 59, 59);
+          return (v.status === 'На передержке' || v.status === 'Забронировано') &&
+                 checkIn <= dateCheck && checkOut >= dateCheck;
+        }).length;
+      }
+      
+      // Set grid columns: 1 for labels + days
+      grid.style.gridTemplateColumns = `minmax(120px, 150px) repeat(${daysInMonth}, minmax(32px, 1fr))`;
+      
+      let html = '';
+      
+      // Header row with days
+      html += '<div class="gantt-days-row">';
+      html += '<div class="gantt-corner">Собака</div>';
+      
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(ganttYear, ganttMonth, d);
+        const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' }).slice(0, 2);
+        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+        const isToday = date.getTime() === today.getTime();
+        
+        let cellClass = 'gantt-day-cell';
+        if (isWeekend) cellClass += ' weekend';
+        if (isToday) cellClass += ' today';
+        
+        html += `<div class="${cellClass}">
+          <div class="gantt-day-name">${dayName}</div>
+          <div class="gantt-day-num">${d}</div>
+        </div>`;
+      }
+      html += '</div>';
+      
+      // Data rows for each visit
+      relevantVisits.forEach(visit => {
+        const checkIn = new Date(visit.checkIn);
+        checkIn.setHours(0, 0, 0, 0);
+        const checkOut = new Date(visit.checkOut);
+        checkOut.setHours(0, 0, 0, 0);
+        
+        html += '<div class="gantt-row">';
+        
+        // Label cell
+        html += `<div class="gantt-label">
+          <div class="gantt-label-name">${escapeHtml(visit.name)}</div>
+          <div class="gantt-label-breed">${escapeHtml(visit.breed)}</div>
+        </div>`;
+        
+        // Calculate bar position
+        let barStartDay = null;
+        let barEndDay = null;
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+          const cellDate = new Date(ganttYear, ganttMonth, d);
+          
+          if (cellDate >= checkIn && cellDate <= checkOut) {
+            if (barStartDay === null) barStartDay = d;
+            barEndDay = d;
+          }
+        }
+        
+        // Render cells
+        for (let d = 1; d <= daysInMonth; d++) {
+          const cellDate = new Date(ganttYear, ganttMonth, d);
+          const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+          const isToday = cellDate.getTime() === today.getTime();
+          
+          let cellClass = 'gantt-cell';
+          if (isWeekend) cellClass += ' weekend';
+          if (isToday) cellClass += ' today';
+          
+          // Add bar on first cell of range
+          let barHtml = '';
+          if (d === barStartDay && barStartDay !== null) {
+            const barWidth = barEndDay - barStartDay + 1;
+            const statusClass = getGanttStatusClass(visit.status);
+            
+            // Calculate width as percentage
+            const widthPercent = (barWidth * 100) + '%';
+            
+            barHtml = `<div class="gantt-bar ${statusClass}" 
+                         style="left: 2px; width: calc(${widthPercent} - 4px);"
+                         onclick="openVisitModal(${visit.id})"
+                         title="${visit.name}: ${formatDate(visit.checkIn)} - ${formatDate(visit.checkOut)}">
+                         ${barWidth > 2 ? visit.name : ''}
+                       </div>`;
+          }
+          
+          html += `<div class="${cellClass}">${barHtml}</div>`;
+        }
+        
+        html += '</div>';
+      });
+      
+      // Load indicator row
+      html += '<div class="gantt-load-row">';
+      html += '<div class="gantt-load-label">🐕 Всего</div>';
+      
+      for (let d = 1; d <= daysInMonth; d++) {
+        const load = loadPerDay[d];
+        let loadClass = 'load-0';
+        if (load >= 1 && load < 3) loadClass = 'load-low';
+        else if (load >= 3 && load < 5) loadClass = 'load-med';
+        else if (load >= 5) loadClass = 'load-high';
+        
+        html += `<div class="gantt-load-cell ${loadClass}">${load || '–'}</div>`;
+      }
+      html += '</div>';
+      
+      grid.innerHTML = html;
+      
+      // Scroll to today if it's in this month
+      if (ganttYear === today.getFullYear() && ganttMonth === today.getMonth()) {
+        setTimeout(() => {
+          const scroll = document.getElementById('ganttScroll');
+          const dayWidth = 32;
+          const todayPosition = (today.getDate() - 1) * dayWidth;
+          scroll.scrollLeft = Math.max(0, todayPosition - 100);
+        }, 100);
+      }
+    }
+
+    function getGanttStatusClass(status) {
+      const map = {
+        'Забронировано': 'status-booked',
+        'На передержке': 'status-active',
+        'Завершено': 'status-completed',
+        'Отменено': 'status-completed'
+      };
+      return map[status] || 'status-booked';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     // ==================== RENDER VISITS ====================
