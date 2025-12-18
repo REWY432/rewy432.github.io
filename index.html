@@ -900,10 +900,12 @@
       overflow: hidden;
     }
     .gantt-container.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 300px);
     }
 
-    /* Gantt Header */
+    /* Gantt Header - Fixed at top */
     .gantt-header {
       display: flex;
       align-items: center;
@@ -913,6 +915,7 @@
       background: var(--bg);
       flex-wrap: wrap;
       gap: 8px;
+      flex-shrink: 0;
     }
     @media (max-width: 400px) {
       .gantt-header {
@@ -984,7 +987,7 @@
       font-weight: 500;
     }
 
-    /* Summary bar (mini calendar view) */
+    /* Summary bar (mini calendar view) - Fixed */
     .gantt-summary {
       display: flex;
       overflow-x: auto;
@@ -992,6 +995,7 @@
       background: var(--card);
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
+      flex-shrink: 0;
     }
     .gantt-summary::-webkit-scrollbar { display: none; }
     
@@ -1042,13 +1046,14 @@
     .gantt-sum-count.c-med { background: #fef7e0; color: #b06000; }
     .gantt-sum-count.c-high { background: #fce8e6; color: #c5221f; }
 
-    /* Gantt Timeline (Vertical Mobile-First) */
+    /* Gantt Timeline (Vertical Mobile-First) - Scrollable */
     .gantt-timeline {
-      max-height: 55vh;
+      flex: 1;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
       scroll-behavior: smooth;
+      min-height: 200px;
     }
 
     /* Day Section */
@@ -1226,7 +1231,7 @@
       opacity: 0.5;
     }
 
-    /* Legend */
+    /* Legend - Fixed at bottom */
     .gantt-legend {
       display: flex;
       gap: 12px;
@@ -1235,6 +1240,7 @@
       background: var(--bg);
       flex-wrap: wrap;
       justify-content: center;
+      flex-shrink: 0;
     }
     .gantt-legend-item {
       display: flex;
@@ -1315,7 +1321,7 @@
         <!-- View Toggle -->
         <div class="view-toggle">
           <button class="view-toggle-btn active" data-view="list" onclick="switchView('list')">📋 Список</button>
-          <button class="view-toggle-btn" data-view="gantt" onclick="switchView('gantt')">📊 Гант</button>
+          <button class="view-toggle-btn" data-view="gantt" onclick="switchView('gantt')">📊 Таблица</button>
         </div>
       </div>
 
