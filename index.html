@@ -891,7 +891,7 @@
       font-weight: 500;
     }
 
-    /* Gantt Chart */
+    /* Gantt Container */
     .gantt-container {
       display: none;
       background: var(--card);
@@ -903,211 +903,320 @@
       display: block;
     }
 
+    /* Gantt Header */
     .gantt-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 10px 12px;
       border-bottom: 1px solid var(--border);
       background: var(--bg);
+      flex-wrap: wrap;
+      gap: 8px;
     }
-    .gantt-title {
-      font-weight: 600;
-      font-size: 1rem;
+    @media (max-width: 400px) {
+      .gantt-header {
+        justify-content: center;
+      }
     }
     .gantt-nav {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
     }
     .gantt-nav-btn {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 6px 12px;
+      width: 36px;
+      height: 36px;
       cursor: pointer;
       font-size: 1rem;
-    }
-    .gantt-nav-btn:active {
-      background: var(--bg);
-    }
-    .gantt-month-label {
-      font-weight: 500;
-      min-width: 120px;
-      text-align: center;
-    }
-
-    .gantt-scroll {
-      overflow-x: auto;
-      overflow-y: auto;
-      max-height: 60vh;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .gantt-grid {
-      display: grid;
-      min-width: max-content;
-    }
-
-    /* Gantt Header Row (Days) */
-    .gantt-days-row {
-      display: contents;
-    }
-    .gantt-corner {
-      position: sticky;
-      left: 0;
-      z-index: 3;
-      background: var(--card);
-      border-bottom: 2px solid var(--border);
-      border-right: 1px solid var(--border);
-      min-width: 120px;
-      padding: 8px;
-    }
-    .gantt-day-cell {
-      text-align: center;
-      padding: 6px 2px;
-      font-size: 0.7rem;
-      border-bottom: 2px solid var(--border);
-      border-right: 1px solid #f0f0f0;
-      min-width: 32px;
-      background: var(--card);
-    }
-    .gantt-day-cell.weekend {
-      background: #fafafa;
-    }
-    .gantt-day-cell.today {
-      background: #e8f0fe;
-      font-weight: 700;
-      color: var(--primary);
-    }
-    .gantt-day-name {
-      color: var(--text-secondary);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-    }
-    .gantt-day-num {
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
-
-    /* Gantt Data Rows */
-    .gantt-row {
-      display: contents;
-    }
-    .gantt-row:hover .gantt-label,
-    .gantt-row:hover .gantt-cell {
-      background: #f8f9ff;
-    }
-    .gantt-label {
-      position: sticky;
-      left: 0;
-      z-index: 2;
-      background: var(--card);
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      min-width: 120px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .gantt-label-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .gantt-label-breed {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .gantt-cell {
-      border-bottom: 1px solid var(--border);
-      border-right: 1px solid #f5f5f5;
-      min-width: 32px;
-      height: 48px;
-      background: var(--card);
-      position: relative;
-    }
-    .gantt-cell.weekend {
-      background: #fafafa;
-    }
-    .gantt-cell.today {
-      background: rgba(74, 134, 232, 0.05);
-    }
-
-    /* Gantt Bars */
-    .gantt-bar {
-      position: absolute;
-      top: 8px;
-      bottom: 8px;
-      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .gantt-nav-btn:active {
+      background: var(--bg);
+      transform: scale(0.95);
+    }
+    .gantt-period-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      min-width: 110px;
+      text-align: center;
+    }
+    .gantt-today-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .gantt-today-btn:active {
+      opacity: 0.9;
+    }
+
+    /* Mode toggle (week/month) */
+    .gantt-mode-toggle {
+      display: flex;
+      background: var(--card);
+      border-radius: 8px;
+      padding: 2px;
+      border: 1px solid var(--border);
+    }
+    .gantt-mode-btn {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .gantt-mode-btn.active {
+      background: var(--primary);
+      color: white;
+      font-weight: 500;
+    }
+
+    /* Summary bar (mini calendar view) */
+    .gantt-summary {
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .gantt-summary::-webkit-scrollbar { display: none; }
+    
+    .gantt-summary-day {
+      flex: 0 0 auto;
+      min-width: 40px;
+      padding: 8px 4px;
+      text-align: center;
+      border-right: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .gantt-summary-day:last-child { border-right: none; }
+    .gantt-summary-day:active { background: #f0f0f0; }
+    .gantt-summary-day.weekend { background: #fafafa; }
+    .gantt-summary-day.today { background: #e8f0fe; }
+    .gantt-summary-day.selected { 
+      background: var(--primary); 
+    }
+    .gantt-summary-day.selected .gantt-sum-weekday,
+    .gantt-summary-day.selected .gantt-sum-date,
+    .gantt-summary-day.selected .gantt-sum-count { 
+      color: white; 
+    }
+    
+    .gantt-sum-weekday {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+    }
+    .gantt-sum-date {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .gantt-summary-day.today .gantt-sum-date { color: var(--primary); }
+    
+    .gantt-sum-count {
       font-size: 0.7rem;
       font-weight: 600;
-      color: white;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding: 0 6px;
-      cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s;
-      z-index: 1;
+      padding: 2px 4px;
+      border-radius: 8px;
+      display: inline-block;
     }
-    .gantt-bar:active {
-      transform: scale(0.98);
-    }
-    .gantt-bar.status-active {
-      background: linear-gradient(135deg, #34a853 0%, #2d9249 100%);
-      box-shadow: 0 2px 4px rgba(52, 168, 83, 0.3);
-    }
-    .gantt-bar.status-booked {
-      background: linear-gradient(135deg, #4a86e8 0%, #3a76d8 100%);
-      box-shadow: 0 2px 4px rgba(74, 134, 232, 0.3);
-    }
-    .gantt-bar.status-completed {
-      background: linear-gradient(135deg, #9aa0a6 0%, #80868b 100%);
-      box-shadow: 0 2px 4px rgba(154, 160, 166, 0.3);
+    .gantt-sum-count.c-0 { background: #f0f0f0; color: #999; }
+    .gantt-sum-count.c-low { background: #e6f4ea; color: #137333; }
+    .gantt-sum-count.c-med { background: #fef7e0; color: #b06000; }
+    .gantt-sum-count.c-high { background: #fce8e6; color: #c5221f; }
+
+    /* Gantt Timeline (Vertical Mobile-First) */
+    .gantt-timeline {
+      max-height: 55vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
     }
 
-    /* Load indicator row */
-    .gantt-load-row {
-      display: contents;
+    /* Day Section */
+    .gantt-day-section {
+      border-bottom: 1px solid var(--border);
     }
-    .gantt-load-label {
-      position: sticky;
-      left: 0;
-      z-index: 2;
+    .gantt-day-section:last-child {
+      border-bottom: none;
+    }
+
+    .gantt-day-header {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
       background: var(--bg);
-      padding: 8px 12px;
-      border-right: 1px solid var(--border);
-      font-size: 0.8rem;
-      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      gap: 12px;
+    }
+    .gantt-day-header.today {
+      background: #e8f0fe;
+    }
+    .gantt-day-header.weekend {
+      background: #f5f5f5;
+    }
+    .gantt-day-date {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 44px;
+    }
+    .gantt-day-weekday {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .gantt-day-header.today .gantt-day-weekday {
+      color: var(--primary);
+    }
+    .gantt-day-number {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .gantt-day-header.today .gantt-day-number {
+      color: var(--primary);
+    }
+    .gantt-day-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gantt-day-count {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
       color: var(--text-secondary);
     }
-    .gantt-load-cell {
-      background: var(--bg);
-      text-align: center;
-      padding: 6px 2px;
-      font-size: 0.8rem;
+    .gantt-day-count.high {
+      color: var(--danger);
       font-weight: 600;
-      min-width: 32px;
-      border-right: 1px solid #f0f0f0;
     }
-    .gantt-load-cell.load-0 { color: #bbb; }
-    .gantt-load-cell.load-low { color: var(--success); }
-    .gantt-load-cell.load-med { color: var(--warning); }
-    .gantt-load-cell.load-high { color: var(--danger); }
+    .gantt-day-count.med {
+      color: var(--warning);
+      font-weight: 600;
+    }
+    .gantt-day-count.low {
+      color: var(--success);
+    }
+    .gantt-day-badges {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
 
-    /* Empty Gantt State */
+    /* Visit Items in Timeline */
+    .gantt-visits {
+      padding: 0;
+    }
+    .gantt-visit-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      padding-left: 72px;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-top: 1px solid #f5f5f5;
+    }
+    .gantt-visit-item:active {
+      background: #f8f9ff;
+    }
+    .gantt-visit-bar {
+      width: 4px;
+      height: 36px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .gantt-visit-bar.status-active {
+      background: var(--success);
+    }
+    .gantt-visit-bar.status-booked {
+      background: var(--primary);
+    }
+    .gantt-visit-bar.status-completed {
+      background: #9aa0a6;
+    }
+    .gantt-visit-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .gantt-visit-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gantt-visit-meta {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .gantt-visit-status {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* Event type badges */
+    .gantt-event-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .gantt-event-badge.checkin {
+      background: #e6f4ea;
+      color: #137333;
+    }
+    .gantt-event-badge.checkout {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+    .gantt-event-badge.staying {
+      background: #e8f0fe;
+      color: #1967d2;
+    }
+
+    /* Empty State */
+    .gantt-empty-day {
+      padding: 16px;
+      padding-left: 72px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
     .gantt-empty {
-      padding: 40px 20px;
+      padding: 60px 20px;
       text-align: center;
       color: var(--text-secondary);
     }
@@ -1120,27 +1229,29 @@
     /* Legend */
     .gantt-legend {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       padding: 12px 16px;
       border-top: 1px solid var(--border);
       background: var(--bg);
       flex-wrap: wrap;
+      justify-content: center;
     }
     .gantt-legend-item {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
     .gantt-legend-color {
-      width: 16px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 3px;
     }
-    .gantt-legend-color.active { background: #34a853; }
-    .gantt-legend-color.booked { background: #4a86e8; }
-    .gantt-legend-color.completed { background: #9aa0a6; }
+    .gantt-legend-color.active { background: var(--success); }
+    .gantt-legend-color.booked { background: var(--primary); }
+    .gantt-legend-color.checkin { background: #e6f4ea; border: 1px solid #137333; }
+    .gantt-legend-color.checkout { background: #fce8e6; border: 1px solid #c5221f; }
 
   </style>
 </head>
@@ -1216,17 +1327,25 @@
       <!-- Gantt View -->
       <div class="gantt-container" id="ganttContainer">
         <div class="gantt-header">
-          <span class="gantt-title">📊 Загруженность</span>
           <div class="gantt-nav">
-            <button class="gantt-nav-btn" onclick="ganttPrevMonth()">◀</button>
-            <span class="gantt-month-label" id="ganttMonthLabel">Декабрь 2024</span>
-            <button class="gantt-nav-btn" onclick="ganttNextMonth()">▶</button>
+            <button class="gantt-nav-btn" onclick="ganttPrev()">◀</button>
+            <span class="gantt-period-label" id="ganttPeriodLabel">10–16 дек</span>
+            <button class="gantt-nav-btn" onclick="ganttNext()">▶</button>
           </div>
+          <div class="gantt-mode-toggle">
+            <button class="gantt-mode-btn active" data-mode="week" onclick="setGanttMode('week')">7 дней</button>
+            <button class="gantt-mode-btn" data-mode="month" onclick="setGanttMode('month')">Месяц</button>
+          </div>
+          <button class="gantt-today-btn" onclick="ganttGoToday()">Сегодня</button>
         </div>
-        <div class="gantt-scroll" id="ganttScroll">
-          <div class="gantt-grid" id="ganttGrid">
-            <!-- JS generated -->
-          </div>
+        
+        <!-- Summary bar -->
+        <div class="gantt-summary" id="ganttSummary">
+          <!-- JS generated -->
+        </div>
+        
+        <div class="gantt-timeline" id="ganttTimeline">
+          <!-- JS generated -->
         </div>
         <div class="gantt-legend">
           <div class="gantt-legend-item">
@@ -1235,11 +1354,15 @@
           </div>
           <div class="gantt-legend-item">
             <div class="gantt-legend-color booked"></div>
-            <span>Забронировано</span>
+            <span>Бронь</span>
           </div>
           <div class="gantt-legend-item">
-            <div class="gantt-legend-color completed"></div>
-            <span>Завершено</span>
+            <div class="gantt-legend-color checkin"></div>
+            <span>Заезд</span>
+          </div>
+          <div class="gantt-legend-item">
+            <div class="gantt-legend-color checkout"></div>
+            <span>Выезд</span>
           </div>
         </div>
       </div>
@@ -1514,8 +1637,8 @@
     let calendarExpanded = false;
     let undoAction = null;
     let currentView = 'list'; // 'list' or 'gantt'
-    let ganttMonth = new Date().getMonth();
-    let ganttYear = new Date().getFullYear();
+    let ganttStartDate = null; // Initialized in DOMContentLoaded
+    let ganttMode = 'week'; // 'week' or 'month'
 
     const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby24iFK8v7HL9QD5ByUBsNqzbgWs47MeGw_LtXv-aedmDtRin9UJjI6vbn6PLAidNiW/exec';
     let apiUrl = localStorage.getItem('apiUrl') || DEFAULT_API_URL;
@@ -1570,6 +1693,9 @@
 
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', () => {
+      // Initialize gantt start date
+      ganttStartDate = getWeekStart(new Date());
+      
       initNavigation();
       initFilters();
       initPeriodTabs();
@@ -2021,187 +2147,285 @@
       }
     }
 
-    // ==================== GANTT CHART ====================
-    function ganttPrevMonth() {
-      ganttMonth--;
-      if (ganttMonth < 0) {
-        ganttMonth = 11;
-        ganttYear--;
+    // ==================== GANTT CHART (Vertical Mobile) ====================
+    function getWeekStart(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
+      d.setDate(diff);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function getMonthStart(date) {
+      const d = new Date(date);
+      d.setDate(1);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function setGanttMode(mode) {
+      ganttMode = mode;
+      document.querySelectorAll('.gantt-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      
+      // Reset to current period
+      if (mode === 'week') {
+        ganttStartDate = getWeekStart(new Date());
+      } else {
+        ganttStartDate = getMonthStart(new Date());
       }
       renderGantt();
     }
 
-    function ganttNextMonth() {
-      ganttMonth++;
-      if (ganttMonth > 11) {
-        ganttMonth = 0;
-        ganttYear++;
+    function ganttPrev() {
+      if (ganttMode === 'week') {
+        ganttStartDate.setDate(ganttStartDate.getDate() - 7);
+      } else {
+        ganttStartDate.setMonth(ganttStartDate.getMonth() - 1);
       }
       renderGantt();
+    }
+
+    function ganttNext() {
+      if (ganttMode === 'week') {
+        ganttStartDate.setDate(ganttStartDate.getDate() + 7);
+      } else {
+        ganttStartDate.setMonth(ganttStartDate.getMonth() + 1);
+      }
+      renderGantt();
+    }
+
+    function ganttGoToday() {
+      if (ganttMode === 'week') {
+        ganttStartDate = getWeekStart(new Date());
+      } else {
+        ganttStartDate = getMonthStart(new Date());
+      }
+      renderGantt();
+      showToast('📅 Сегодня');
     }
 
     function renderGantt() {
-      const grid = document.getElementById('ganttGrid');
-      const monthLabel = document.getElementById('ganttMonthLabel');
+      const timeline = document.getElementById('ganttTimeline');
+      const summary = document.getElementById('ganttSummary');
+      const periodLabel = document.getElementById('ganttPeriodLabel');
       
-      // Update month label
-      const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                          'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-      monthLabel.textContent = `${monthNames[ganttMonth]} ${ganttYear}`;
-      
-      // Get days in month
-      const daysInMonth = new Date(ganttYear, ganttMonth + 1, 0).getDate();
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      // Filter visits that overlap with this month
-      const monthStart = new Date(ganttYear, ganttMonth, 1);
-      const monthEnd = new Date(ganttYear, ganttMonth, daysInMonth, 23, 59, 59);
-      
-      const relevantVisits = visits.filter(v => {
-        const checkIn = new Date(v.checkIn);
-        const checkOut = new Date(v.checkOut);
-        // Visit overlaps with month if: checkIn <= monthEnd AND checkOut >= monthStart
-        return checkIn <= monthEnd && checkOut >= monthStart;
-      }).sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn));
-      
-      if (relevantVisits.length === 0) {
-        grid.innerHTML = `
-          <div class="gantt-empty">
-            <div class="gantt-empty-icon">📅</div>
-            <p>Нет визитов в этом месяце</p>
-          </div>
-        `;
-        return;
+      // Calculate days to show
+      let days = [];
+      if (ganttMode === 'week') {
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(ganttStartDate);
+          d.setDate(d.getDate() + i);
+          days.push(d);
+        }
+      } else {
+        const daysInMonth = new Date(ganttStartDate.getFullYear(), ganttStartDate.getMonth() + 1, 0).getDate();
+        for (let i = 0; i < daysInMonth; i++) {
+          const d = new Date(ganttStartDate);
+          d.setDate(d.getDate() + i);
+          days.push(d);
+        }
       }
       
-      // Calculate load per day
-      const loadPerDay = {};
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateCheck = new Date(ganttYear, ganttMonth, d);
-        loadPerDay[d] = relevantVisits.filter(v => {
+      const periodEnd = days[days.length - 1];
+      
+      // Format period label
+      if (ganttMode === 'week') {
+        const formatShort = (d) => d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        periodLabel.textContent = `${formatShort(ganttStartDate)} – ${formatShort(periodEnd)}`;
+      } else {
+        periodLabel.textContent = ganttStartDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+      }
+      
+      // Render summary bar
+      let summaryHtml = '';
+      days.forEach((date, idx) => {
+        const isToday = date.getTime() === today.getTime();
+        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+        
+        // Count active dogs
+        const count = visits.filter(v => {
           const checkIn = new Date(v.checkIn);
           checkIn.setHours(0, 0, 0, 0);
           const checkOut = new Date(v.checkOut);
-          checkOut.setHours(23, 59, 59);
+          checkOut.setHours(0, 0, 0, 0);
           return (v.status === 'На передержке' || v.status === 'Забронировано') &&
-                 checkIn <= dateCheck && checkOut >= dateCheck;
+                 checkIn <= date && checkOut >= date;
         }).length;
-      }
+        
+        let countClass = 'c-0';
+        if (count >= 5) countClass = 'c-high';
+        else if (count >= 3) countClass = 'c-med';
+        else if (count > 0) countClass = 'c-low';
+        
+        let dayClass = 'gantt-summary-day';
+        if (isToday) dayClass += ' today';
+        else if (isWeekend) dayClass += ' weekend';
+        
+        summaryHtml += `
+          <div class="${dayClass}" onclick="scrollToGanttDay(${idx})">
+            <div class="gantt-sum-weekday">${date.toLocaleDateString('ru-RU', { weekday: 'short' }).slice(0, 2)}</div>
+            <div class="gantt-sum-date">${date.getDate()}</div>
+            <div class="gantt-sum-count ${countClass}">${count}</div>
+          </div>
+        `;
+      });
+      summary.innerHTML = summaryHtml;
       
-      // Set grid columns: 1 for labels + days
-      grid.style.gridTemplateColumns = `minmax(120px, 150px) repeat(${daysInMonth}, minmax(32px, 1fr))`;
-      
+      // Render timeline
       let html = '';
       
-      // Header row with days
-      html += '<div class="gantt-days-row">';
-      html += '<div class="gantt-corner">Собака</div>';
-      
-      for (let d = 1; d <= daysInMonth; d++) {
-        const date = new Date(ganttYear, ganttMonth, d);
-        const dayName = date.toLocaleDateString('ru-RU', { weekday: 'short' }).slice(0, 2);
-        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-        const isToday = date.getTime() === today.getTime();
+      days.forEach((currentDate, dayIndex) => {
+        currentDate.setHours(0, 0, 0, 0);
+        const isToday = currentDate.getTime() === today.getTime();
+        const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
         
-        let cellClass = 'gantt-day-cell';
-        if (isWeekend) cellClass += ' weekend';
-        if (isToday) cellClass += ' today';
+        // Find visits for this day
+        const dayVisits = visits.filter(v => {
+          const checkIn = new Date(v.checkIn);
+          checkIn.setHours(0, 0, 0, 0);
+          const checkOut = new Date(v.checkOut);
+          checkOut.setHours(0, 0, 0, 0);
+          return checkIn <= currentDate && checkOut >= currentDate;
+        });
         
-        html += `<div class="${cellClass}">
-          <div class="gantt-day-name">${dayName}</div>
-          <div class="gantt-day-num">${d}</div>
-        </div>`;
-      }
-      html += '</div>';
-      
-      // Data rows for each visit
-      relevantVisits.forEach(visit => {
-        const checkIn = new Date(visit.checkIn);
-        checkIn.setHours(0, 0, 0, 0);
-        const checkOut = new Date(visit.checkOut);
-        checkOut.setHours(0, 0, 0, 0);
+        // Count active dogs
+        const activeCount = dayVisits.filter(v => 
+          v.status === 'На передержке' || v.status === 'Забронировано'
+        ).length;
         
-        html += '<div class="gantt-row">';
+        // Day header classes
+        let headerClass = 'gantt-day-header';
+        if (isToday) headerClass += ' today';
+        else if (isWeekend) headerClass += ' weekend';
         
-        // Label cell
-        html += `<div class="gantt-label">
-          <div class="gantt-label-name">${escapeHtml(visit.name)}</div>
-          <div class="gantt-label-breed">${escapeHtml(visit.breed)}</div>
-        </div>`;
+        // Count class
+        let countClass = 'gantt-day-count';
+        if (activeCount >= 5) countClass += ' high';
+        else if (activeCount >= 3) countClass += ' med';
+        else if (activeCount > 0) countClass += ' low';
         
-        // Calculate bar position
-        let barStartDay = null;
-        let barEndDay = null;
+        html += `<div class="gantt-day-section" data-day-index="${dayIndex}">`;
         
-        for (let d = 1; d <= daysInMonth; d++) {
-          const cellDate = new Date(ganttYear, ganttMonth, d);
+        // Day header
+        html += `
+          <div class="${headerClass}">
+            <div class="gantt-day-date">
+              <span class="gantt-day-weekday">${currentDate.toLocaleDateString('ru-RU', { weekday: 'short' })}</span>
+              <span class="gantt-day-number">${currentDate.getDate()}</span>
+            </div>
+            <div class="gantt-day-info">
+              <span class="${countClass}">🐕 ${activeCount}</span>
+            </div>
+          </div>
+        `;
+        
+        // Visits
+        html += `<div class="gantt-visits">`;
+        
+        if (dayVisits.length === 0) {
+          html += `<div class="gantt-empty-day">Свободно</div>`;
+        } else {
+          // Sort: active first, then by check-in
+          dayVisits.sort((a, b) => {
+            const statusOrder = { 'На передержке': 0, 'Забронировано': 1, 'Завершено': 2, 'Отменено': 3 };
+            if (statusOrder[a.status] !== statusOrder[b.status]) {
+              return statusOrder[a.status] - statusOrder[b.status];
+            }
+            return new Date(a.checkIn) - new Date(b.checkIn);
+          });
           
-          if (cellDate >= checkIn && cellDate <= checkOut) {
-            if (barStartDay === null) barStartDay = d;
-            barEndDay = d;
-          }
+          dayVisits.forEach(v => {
+            const checkIn = new Date(v.checkIn);
+            checkIn.setHours(0, 0, 0, 0);
+            const checkOut = new Date(v.checkOut);
+            checkOut.setHours(0, 0, 0, 0);
+            
+            const isCheckIn = checkIn.getTime() === currentDate.getTime();
+            const isCheckOut = checkOut.getTime() === currentDate.getTime();
+            
+            // Event badge
+            let eventBadge = '';
+            if (isCheckIn && isCheckOut) {
+              eventBadge = `<span class="gantt-event-badge checkin">📍 1 день</span>`;
+            } else if (isCheckIn) {
+              eventBadge = `<span class="gantt-event-badge checkin">▶ Заезд</span>`;
+            } else if (isCheckOut) {
+              eventBadge = `<span class="gantt-event-badge checkout">◀ Выезд</span>`;
+            } else {
+              const dayNum = getDayNumber(checkIn, currentDate);
+              eventBadge = `<span class="gantt-event-badge staying">День ${dayNum}</span>`;
+            }
+            
+            const statusClass = getGanttStatusClass(v.status);
+            
+            html += `
+              <div class="gantt-visit-item" onclick="openVisitModal(${v.id})">
+                <div class="gantt-visit-bar ${statusClass}"></div>
+                <div class="gantt-visit-info">
+                  <div class="gantt-visit-name">${escapeHtml(v.name)}</div>
+                  <div class="gantt-visit-meta">
+                    <span>${escapeHtml(v.breed)}</span>
+                    ${eventBadge}
+                  </div>
+                </div>
+                <span class="visit-status ${getStatusClass(v.status)}">${getShortStatus(v.status)}</span>
+              </div>
+            `;
+          });
         }
         
-        // Render cells
-        for (let d = 1; d <= daysInMonth; d++) {
-          const cellDate = new Date(ganttYear, ganttMonth, d);
-          const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
-          const isToday = cellDate.getTime() === today.getTime();
-          
-          let cellClass = 'gantt-cell';
-          if (isWeekend) cellClass += ' weekend';
-          if (isToday) cellClass += ' today';
-          
-          // Add bar on first cell of range
-          let barHtml = '';
-          if (d === barStartDay && barStartDay !== null) {
-            const barWidth = barEndDay - barStartDay + 1;
-            const statusClass = getGanttStatusClass(visit.status);
-            
-            // Calculate width as percentage
-            const widthPercent = (barWidth * 100) + '%';
-            
-            barHtml = `<div class="gantt-bar ${statusClass}" 
-                         style="left: 2px; width: calc(${widthPercent} - 4px);"
-                         onclick="openVisitModal(${visit.id})"
-                         title="${visit.name}: ${formatDate(visit.checkIn)} - ${formatDate(visit.checkOut)}">
-                         ${barWidth > 2 ? visit.name : ''}
-                       </div>`;
-          }
-          
-          html += `<div class="${cellClass}">${barHtml}</div>`;
-        }
-        
-        html += '</div>';
+        html += `</div></div>`;
       });
       
-      // Load indicator row
-      html += '<div class="gantt-load-row">';
-      html += '<div class="gantt-load-label">🐕 Всего</div>';
+      timeline.innerHTML = html;
       
-      for (let d = 1; d <= daysInMonth; d++) {
-        const load = loadPerDay[d];
-        let loadClass = 'load-0';
-        if (load >= 1 && load < 3) loadClass = 'load-low';
-        else if (load >= 3 && load < 5) loadClass = 'load-med';
-        else if (load >= 5) loadClass = 'load-high';
-        
-        html += `<div class="gantt-load-cell ${loadClass}">${load || '–'}</div>`;
-      }
-      html += '</div>';
-      
-      grid.innerHTML = html;
-      
-      // Scroll to today if it's in this month
-      if (ganttYear === today.getFullYear() && ganttMonth === today.getMonth()) {
+      // Scroll summary to today if in view
+      if (today >= ganttStartDate && today <= periodEnd) {
         setTimeout(() => {
-          const scroll = document.getElementById('ganttScroll');
-          const dayWidth = 32;
-          const todayPosition = (today.getDate() - 1) * dayWidth;
-          scroll.scrollLeft = Math.max(0, todayPosition - 100);
+          const todayIndex = days.findIndex(d => d.getTime() === today.getTime());
+          if (todayIndex >= 0) {
+            const summaryDays = summary.querySelectorAll('.gantt-summary-day');
+            if (summaryDays[todayIndex]) {
+              summaryDays[todayIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+          }
+          
+          const todaySection = document.querySelector('.gantt-day-header.today');
+          if (todaySection) {
+            todaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }, 100);
       }
+      
+      // Setup swipe navigation
+      setupGanttSwipe();
+    }
+
+    function scrollToGanttDay(index) {
+      const section = document.querySelector(`[data-day-index="${index}"]`);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function getDayNumber(checkIn, currentDate) {
+      return Math.floor((currentDate - checkIn) / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    function getShortStatus(status) {
+      const map = {
+        'Забронировано': 'Бронь',
+        'На передержке': 'Здесь',
+        'Завершено': 'Завершён',
+        'Отменено': 'Отмена'
+      };
+      return map[status] || status;
     }
 
     function getGanttStatusClass(status) {
@@ -2215,9 +2439,41 @@
     }
 
     function escapeHtml(text) {
+      if (!text) return '';
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // Swipe navigation for Gantt
+    function setupGanttSwipe() {
+      const timeline = document.getElementById('ganttTimeline');
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      timeline.ontouchstart = (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      };
+      
+      timeline.ontouchend = (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleGanttSwipe();
+      };
+      
+      function handleGanttSwipe() {
+        const diff = touchStartX - touchEndX;
+        const threshold = 50;
+        
+        if (Math.abs(diff) > threshold) {
+          if (diff > 0) {
+            // Swipe left - next week
+            ganttNext();
+          } else {
+            // Swipe right - prev week
+            ganttPrev();
+          }
+        }
+      }
     }
 
     // ==================== RENDER VISITS ====================
